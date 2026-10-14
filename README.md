@@ -15,6 +15,7 @@ https://github.com/jensathensg/APM1205/blob/22a30888e6b9d6bf1d37649ca879253a8395
 https://github.com/jensathensg/APM1205/blob/540a57a3cca3f673d5879f5ac1065beeca1a81c0/Figures%20Output.pdf 
 
 ## Report
+https://github.com/jensathensg/APM1205/blob/38c91983181114e318742f851538281f04c4389c/SA1_Report.pdf 
 
 ## Software
 R - Posit Cloud
