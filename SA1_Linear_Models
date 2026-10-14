@@ -1,0 +1,238 @@
+# Part A. Data Preparation
+
+bike <- read.csv(
+  "SeoulBikeData - SeoulBikeData.csv",
+  header = TRUE,
+  sep = ",",
+  fileEncoding = "UTF-8",
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+dim(bike)
+names(bike)
+head(bike)
+
+names(bike)[2] <- "Rentals"
+names(bike)[4] <- "Temperature"
+names(bike)[5] <- "Humidity"
+names(bike)[6] <- "Wind"
+names(bike)[12] <- "Season"
+
+dim(bike)
+names(bike)
+head(bike)
+
+str(bike)
+
+colSums(is.na(bike))
+
+sum(duplicated(bike))
+
+summary(bike)
+
+names(bike)
+
+bike$Season <- as.factor(bike$Season)
+bike$Holiday <- as.factor(bike$Holiday)
+bike$`Functioning Day` <- as.factor(bike$`Functioning Day`)
+
+str(bike)
+
+colSums(is.na(bike))
+
+# Part B. Exploratory Data Analysis 
+
+summary(bike[, c("Rentals", "Temperature",
+                 "Humidity", "Wind")])
+
+mean(bike$Rentals, na.rm = TRUE)
+
+median(bike$Rentals, na.rm = TRUE)
+
+sd(bike$Rentals, na.rm = TRUE)
+
+table(bike$Season)
+
+# Histogram
+hist(bike$Rentals,
+     main = "Distribution of Bike Rentals",
+     xlab = "Number of Rentals",
+     col = "lightblue",
+     border = "black")
+
+# Scatter plot
+plot(bike$Temperature, bike$Rentals,
+     main = "Temperature vs. Bike Rentals",
+     xlab = "Temperature (°C)",
+     ylab = "Number of Rentals",
+     pch = 19,
+     col = "lightpink")
+
+# Scatter plot
+plot(bike$Humidity, bike$Rentals,
+     main = "Humidity vs. Bike Rentals",
+     xlab = "Humidity (%)",
+     ylab = "Number of Rentals",
+     pch = 19,
+     col = "brown")
+
+# Boxplot
+boxplot(Rentals ~ Season, data = bike,
+        main = "Bike Rentals by Season",
+        xlab = "Season",
+        ylab = "Number of Rentals",
+        col = "grey")
+
+# Part C. Simple Linear Regression
+
+model1 <- lm(Rentals ~ Temperature, data = bike)
+
+summary(model1)
+
+plot(bike$Temperature, bike$Rentals,
+     main = "Simple Linear Regression",
+     xlab = "Temperature (°C)",
+     ylab = "Number of Rentals",
+     pch = 19,
+     col = "grey")
+
+abline(model1, col = "black", lwd = 2)
+
+summary(model1)$r.squared
+
+# Part D. Multiple Linear Regression 
+
+model2 <- lm(Rentals ~ Temperature + Humidity +
+               Wind + Season,
+             data = bike)
+
+summary(model2)
+
+summary(model1)$r.squared
+summary(model2)$r.squared
+
+confint(model2)
+anova(model2)
+
+# Part E. Statistical Inference for Regression
+
+summary(model2)
+
+summary(model2)$coefficients
+
+confint(model2, level = 0.95)
+
+summary(model2)$adj.r.squared
+
+summary(model2)$fstatistic
+
+# Part F. Matrix Form and Least-Squares Theory
+
+small_data <- na.omit(
+  bike[, c("Rentals", "Temperature", "Humidity", "Wind")]
+)
+
+small_data <- head(small_data, 10)
+
+y <- as.matrix(small_data$Rentals)
+
+X <- model.matrix(
+  ~ Temperature + Humidity + Wind,
+  data = small_data
+)
+
+beta_hat <- solve(t(X) %*% X) %*% t(X) %*% y
+
+beta_hat
+
+small_model <- lm(
+  Rentals ~ Temperature + Humidity + Wind,
+  data = small_data
+)
+
+coef(small_model)
+
+summary(model2)
+levels(bike$Season)
+
+# Part G. Dummy Variables and ANOVA
+
+coef(model2)
+
+model.matrix(~ Season, data = head(bike, 8))
+
+# Part H. Two-Way ANOVA and Interactions
+
+model_interaction <- lm(
+  Rentals ~ Temperature * Season + Humidity + Wind,
+  data = bike
+)
+
+summary(model_interaction)
+
+temp_seq <- seq(min(bike$Temperature),
+                max(bike$Temperature),
+                length.out = 100)
+
+pred_data <- expand.grid(
+  Temperature = temp_seq,
+  Season = levels(bike$Season)
+)
+
+pred_data$Humidity <- mean(bike$Humidity)
+pred_data$Wind <- mean(bike$Wind)
+
+pred_data$PredictedRentals <- predict(model_interaction, pred_data)
+
+matplot(
+  temp_seq,
+  matrix(pred_data$PredictedRentals, ncol = 4),
+  type = "l",
+  col = 1:4,
+  lwd = 2,
+  xlab = "Temperature",
+  ylab = "Rentals",
+  main = "Bike Rentals by Season"
+)
+
+legend(
+  "topleft",
+  legend = levels(bike$Season),
+  col = 1:4,
+  lty = 1,
+  cex = 0.8,
+  bty = "n"
+)
+
+plot(
+  residuals(model_final),
+  type = "l",
+  xlab = "Observation Order",
+  ylab = "Residual",
+  main = "Residuals in Observation Order"
+)
+
+abline(h = 0, col = "red", lwd = 2)
+
+# Part J. Final Model
+
+AIC(model2, model_interaction)
+
+summary(model2)$r.squared
+summary(model_interaction)$r.squared
+
+summary(model2)$adj.r.squared
+summary(model_interaction)$adj.r.squared
+
+summary(model_final)
+
+summary(model_final)$coefficients
+AIC(model2, model_interaction)
+
+summary(model_final)$r.squared
+summary(model_final)$adj.r.squared
+
+summary(model_final)$fstatistic
+
+confint(model_final)
